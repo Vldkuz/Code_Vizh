@@ -1,4 +1,3 @@
-const { count } = require('console');
 const fs=require('fs');
 let [,,Method,Input,Output,CodeWord,Alphabet]=[...process.argv];
 
@@ -10,33 +9,7 @@ if (!fs.existsSync(Input) || !fs.existsSync(Output))
 
 if ((Method=="encode" && CodeWord!=undefined && Alphabet!=undefined ) || (Method=="decode" && CodeWord!=undefined && Alphabet!=undefined))
 {
-    let Alp=GetAlphab(Alphabet);
-    let Str=fs.readFileSync(Input,'utf-8');
-    let Table=GetVizhTab(Alp);
-    let ModuloRing=CodeWord.length;
-    let Code=new String();
-    for(let i = 0;i < Str.length;++i)
-    {
-        if (Method=="encode"){
-            if (Str[i]!=" ")  Code+=Table[Str[i].toUpperCase()][CodeWord[i % ModuloRing].toUpperCase()];
-            else Code+=" ";
-        }
-        else{
-            if (Str[i]!=" ") 
-            {
-                for (char of Alp)
-                {
-                    if (Table[CodeWord[i % ModuloRing].toUpperCase()][char]==Str[i].toUpperCase()) {
-                        Code+=char
-                        break;
-                    }
-                }
-            }
-            else Code+=" ";
-        }
-    }
-
-    fs.writeFileSync(Output,Code);
+    GetVizhCodeOrDecode(Alphabet,Input,Method,CodeWord,Output);    
     return;
 }
 
@@ -49,22 +22,8 @@ if (Method=="decode")
 
 if (Method=="decode" && CodeWord==undefined)
 {
-    let str=fs.readFileSync(Input,'utf-8');
-    let t = 2;
-    let LenKey=0;
-    while (t < str.length)
-    {
-        let IndexT=GetIndexSovp(GetPosT(str,t));
-        if (Math.max(IndexT))
-        {
-            LenKey=t;
-            break;
-        }
-        t++;
-    }
-
-    let CodeWord=GetSubstr(str,0,LenKey);
-
+    let template=fs.readFileSync(Input,'utf-8');
+    HackShifVizh(template,Alphabet);
 }
 else 
 {
@@ -96,16 +55,92 @@ function GetPosT(str,t)
     return pos;
 }
 
-function GetSubstr(str,start,end)
+function LoopShift(template,t)
 {
-    let Substr=new String();
-    for (let i = start; i < end; i++) {
-        if (str[i]!=" ") Substr+=str[i];
+    let LoopedStr = template.substring(template.length - t,template.length) + template.substring(0,template.length-t);
+    return LoopedStr;
+}
+
+function HackShifVizh(template,keyLang)
+{
+    let i = 0;
+    let Trigram=GetTriByKey(keyLang);
+    let arr=[];
+    while (i < template.length - 3)
+    {
+        let TempTrig=template.substring(i,i+3);
+        let j=0;
+        while (j < template.length - 3) {
+            let Trig=template.substring(j,j+3)
+            if (TempTrig==Trig && j!=i)
+            {
+                arr.push(Math.abs(i-j));
+                break;
+            }
+            j++;
+        }
+
+        i++;
+    }
+
+    console.log(GetOftenDiv(arr));
+}
+
+function GetOftenDiv(arr)
+{
+    let n = arr.length, x = Math.abs(arr[0]);
+    for (var i = 1; i < n; i++)
+    { var y = Math.abs(arr[ i ]);
+       while (x && y){ x > y ? x %= y : y %= x; }
+       x += y;
+    }
+    return x;
+}
+
+function GetVizhCodeOrDecode(Alphabet,Input,Method,CodeWord,Output)
+{
+    let SpecSymb=[",",".","?","!"," ","-"];
+    let Alp=GetAlphab(Alphabet);
+    let Str=fs.readFileSync(Input,'utf-8');
+    let Table=GetVizhTab(Alp);
+    let ModuloRing=CodeWord.length;
+    let Code=new String();
+    for(let i = 0;i < Str.length;++i)
+    {
+        if (Method=="encode"){
+            if (!(SpecSymb.includes(Str[i])))  Code+=Table[Str[i].toUpperCase()][CodeWord[i % ModuloRing].toUpperCase()];
+            else Code+=Str[i];
+        }
         else{
-            end+=1;
+            if (!SpecSymb.includes(Str[i]))  
+            {
+                for (char of Alp)
+                {
+                    if (Table[CodeWord[i % ModuloRing].toUpperCase()][char]==Str[i].toUpperCase()) {
+                        Code+=char
+                        break;
+                    }
+                }
+            }
+            else Code+=Str[i];
         }
     }
-    return Substr;
+
+    fs.writeFileSync(Output,Code);
+}
+
+
+function GetTriByKey(keyLang)
+{
+    if (keyLang=="en")
+    {
+        return ["the","hat","and","ion"]
+    }
+    else
+    {
+        return ["СТО","ЕНО","НОВ","ТОВ","ОВО","ОВА"];
+    }
+
 }
 
 function GetVizhTab(Alp)
@@ -148,7 +183,6 @@ function GetAlphab(key)
         }
     }
 
-    Alp.push(",",".","-","!","?");
     return Alp;
 }
 
