@@ -1,3 +1,4 @@
+const { ALL } = require('dns');
 const fs=require('fs');
 let [,,Method,Input,Output,CodeWord,Alphabet]=[...process.argv];
 
@@ -131,7 +132,7 @@ function HackShifVizh(template,keyLang)
 
     for (temp of SymbFreq.entries())
     {
-        
+
 
     }
 
@@ -195,7 +196,6 @@ function Nod(a,b)
 }
 function GetVizhCodeOrDecode(Alphabet,Input,Method,CodeWord,Output)
 {
-    let SpecSymb=[",",".","?","!"," ","-"];
     let Alp=GetAlphab(Alphabet);
     let Str=fs.readFileSync(Input,'utf-8');
     let Table=GetVizhTab(Alp);
@@ -204,7 +204,10 @@ function GetVizhCodeOrDecode(Alphabet,Input,Method,CodeWord,Output)
     for(let i = 0;i < Str.length;++i)
     {
         if (Method=="encode"){
-            if (!(SpecSymb.includes(Str[i])))  Code+=Table[Str[i].toUpperCase()][CodeWord[i % ModuloRing].toUpperCase()];
+            if (Alp.includes(Str[i].toUpperCase())) 
+            {
+                Code+=Table[Str[i].toUpperCase()][CodeWord[i % ModuloRing].toUpperCase()];
+            }
             else Code+=Str[i];
         }
         else{
@@ -277,6 +280,7 @@ function GetAlphab(key)
         for (let i = 1040; i < 1072 ; ++i) {
             Alp.push(String.fromCharCode(i));
         }
+        Alp.push("Ё");
     }
 
     return Alp;
