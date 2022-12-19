@@ -211,7 +211,7 @@ function GetVizhCodeOrDecode(Alphabet,Input,Method,CodeWord,Output)
             else Code+=Str[i];
         }
         else{
-            if (!SpecSymb.includes(Str[i]))  
+            if (Alp.includes(Str[i]))  
             {
                 for (char of Alp)
                 {
