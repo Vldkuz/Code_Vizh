@@ -64,7 +64,6 @@ function LoopShift(template,t)
 function HackShifVizh(template,keyLang)
 {
     let i = 0;
-    let Trigram=GetTriByKey(keyLang);
     let arr=[];
     while (i < template.length - 3)
     {
@@ -83,20 +82,117 @@ function HackShifVizh(template,keyLang)
         i++;
     }
 
-    console.log(GetOftenDiv(arr));
+    let key_var = GetOftenDiv(arr);
+    let mas_used = new Array();
+    let max = 0;
+    let min = template.length
+    let char;
+
+    for (len of key_var.entries())
+    {
+        if (len[1] > max && len[0] < min) 
+        {
+            max=len[1];
+            min=len[0]
+            char=len[0];
+        }
+    }
+
+    let freq=new Map();
+    if (keyLang==en){
+        let alph=["E","T","A","O","I","N","S","H","R","D","L","C","U","M","W","F","G","Y","P","B","V","K","X","J","Q","Z"];
+        let TabF=[0.127, 0.096, 0.0817, 0.0751 , 0.0697, 0.0675, 0.0633, 0.0609	, 0.0599 , 0.0425, 0.0403 , 0.0278 , 0.0276, 0.0241, 0.0236 , 0.0223, 0.0202, 0.0197, 0.0193, 0.0149, 0.0098, 0.0077, 0.0015, 0.0015, 0.001, 0.0005];
+        for (let i = 0; i < alph.length; ++i)
+        {
+            freq.get(alph[i],TabF[i]);
+        }
+    }
+    else{
+        
+        let alph=["О","Е","А","И","Н","Т","С","Р","В","Л","К","М","Д","П","У","Я","Ы","Ь","Г","З","Б","Ч","Й","Х","Ж","Ш","Ю","Ц","Щ","Э","Ф","Ъ","Ё"];
+        let TabF=[0.10983, 0.08483, 0.07998, 0.07367 , 0.067, 0.06318, 0.05473, 0.04746	, 0.04533 , 0.04343 , 0.03486 , 0.03203 , 0.02977, 0.02804, 0.02615 , 0.02001, 0.01898, 0.01735, 0.01687 , 0.01641, 0.01592 , 0.0145, 0.01208, 0.00966, 0.0094, 0.00718, 0.00639, 0.00486, 0.00361, 0.00331, 0.00267, 0.00037, 0.00013];
+        for (let i = 0; i < alph.length; ++i)
+        {
+            freq.get(alph[i],TabF[i]);
+        }
+    }
+
+    let SymbFreq=new Map();
+    for (let i = 0; i < char ; i++) {
+        SymbFreq.set(template[i] , 0);
+        for (let j  = 0; j < template.length; j++)
+        {
+            if (Symb==template[j])
+            {
+                SymbFreq.set(template[j],SymbFreq.get(template[j])+1);
+            }
+        }
+    }
+
+    for (temp of SymbFreq.entries())
+    {
+        
+
+    }
+
+
+
+
+
+
 }
 
+
+function GetGroup(t,period,template)
+{
+    let Str="";
+    let i = t;
+    while (i < template.length)
+    {
+        Str+=template[i]
+        i+=period;
+    }
+    return Str;
+}
 function GetOftenDiv(arr)
 {
-    let n = arr.length, x = Math.abs(arr[0]);
-    for (var i = 1; i < n; i++)
-    { var y = Math.abs(arr[ i ]);
-       while (x && y){ x > y ? x %= y : y %= x; }
-       x += y;
+    let div=new Map();
+    for (let i = 0 ; i < arr.length - 1; ++i)
+    {
+        for (let j = i + 1;j < arr.length; ++j)
+        {
+            let temp=Nod(arr[i],arr[j])
+            if (arr[i]!=arr[j] && temp!=1)
+            {
+                if (div.get(temp))
+                {
+                    div.set(temp,div.get(temp)+1);
+                }
+                else
+                {
+                    div.set(temp,1);
+                }
+            }
+        }
     }
-    return x;
+    return div;
 }
 
+function Nod(a,b)
+{
+    while (a!=0 && b!=0)
+    {
+        if (a>b)
+        {
+            a = a % b;
+        }
+        else{
+            b = b % a;
+        }
+    }
+
+    return a+b;
+}
 function GetVizhCodeOrDecode(Alphabet,Input,Method,CodeWord,Output)
 {
     let SpecSymb=[",",".","?","!"," ","-"];
